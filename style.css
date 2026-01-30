@@ -70,6 +70,23 @@ body {
     color: var(--text-primary);
 }
 
+.para-link {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 12px;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+}
+
+.para-link:hover {
+    opacity: 1;
+}
+
+.para-link img {
+    width: 16px;
+    height: 16px;
+}
+
 .file-input-wrapper {
     position: relative;
 }
