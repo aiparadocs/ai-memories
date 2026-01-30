@@ -6,16 +6,34 @@
     box-sizing: border-box;
 }
 
+/* ライトモード（デフォルト） */
 :root {
-    --bg-dark: #212121;
-    --bg-sidebar: #171717;
-    --bg-message-user: #2f2f2f;
+    --bg-dark: #ffffff;
+    --bg-sidebar: #f7f7f8;
+    --bg-message-user: #e9e9eb;
     --bg-message-assistant: transparent;
-    --text-primary: #ececec;
-    --text-secondary: #8e8e8e;
-    --border-color: #444;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border-color: #e5e5e5;
     --accent-color: #10a37f;
-    --hover-color: #2a2a2a;
+    --hover-color: #ececec;
+    --code-bg: #f4f4f4;
+}
+
+/* ダークモード（システム設定に応じて） */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-dark: #212121;
+        --bg-sidebar: #171717;
+        --bg-message-user: #2f2f2f;
+        --bg-message-assistant: transparent;
+        --text-primary: #ececec;
+        --text-secondary: #8e8e8e;
+        --border-color: #444;
+        --accent-color: #10a37f;
+        --hover-color: #2a2a2a;
+        --code-bg: #1a1a1a;
+    }
 }
 
 body {
@@ -305,7 +323,7 @@ body {
 }
 
 .message-content code {
-    background-color: #1a1a1a;
+    background-color: var(--code-bg);
     padding: 2px 6px;
     border-radius: 4px;
     font-family: 'Consolas', 'Monaco', monospace;
@@ -313,7 +331,7 @@ body {
 }
 
 .message-content pre {
-    background-color: #1a1a1a;
+    background-color: var(--code-bg);
     padding: 16px;
     border-radius: 8px;
     overflow-x: auto;
