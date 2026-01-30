@@ -374,8 +374,13 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     color: var(--text-primary);
-    font-size: 20px;
     cursor: pointer;
+    padding: 0;
+}
+
+.menu-toggle svg {
+    display: block;
+    margin: auto;
 }
 
 /* オーバーレイ */
