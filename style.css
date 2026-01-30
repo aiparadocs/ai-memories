@@ -418,6 +418,14 @@ body {
         transform: translateX(0);
     }
 
+    .sidebar-header {
+        padding-top: 68px;
+    }
+
+    .sidebar-header h1 {
+        text-align: center;
+    }
+
     .main-content {
         width: 100%;
     }
