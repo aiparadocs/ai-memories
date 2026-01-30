@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Memories</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- モバイル用メニューボタン -->
+        <button class="menu-toggle" id="menuToggle">☰</button>
+
+        <!-- オーバーレイ -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- サイドバー -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1>AI Memories</h1>
+                <div class="file-input-wrapper">
+                    <input type="file" id="fileInput" accept=".json">
+                    <label for="fileInput">📁 conversations.json を開く</label>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="会話を検索...">
+            </div>
+
+            <div class="name-setting">
+                <label for="aiNameInput">相手の名前</label>
+                <input type="text" id="aiNameInput" placeholder="名前を入力...">
+            </div>
+
+            <div class="conversation-list" id="conversationList">
+                <p class="placeholder">ファイルを選択してください</p>
+            </div>
+
+            <div class="sidebar-footer">
+                <span id="stats"></span>
+            </div>
+        </aside>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <div class="chat-header" id="chatHeader">
+                <h2>会話を選択してください</h2>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <div class="welcome-icon">💬</div>
+                    <p>左のサイドバーから会話を選択すると、ここに表示されます</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
