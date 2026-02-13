@@ -8,6 +8,7 @@ const fileInput = document.getElementById('fileInput');
 const searchInput = document.getElementById('searchInput');
 const aiNameInput = document.getElementById('aiNameInput');
 const conversationList = document.getElementById('conversationList');
+const showHiddenInput = document.getElementById('showHiddenInput');
 const chatHeader = document.getElementById('chatHeader');
 const chatMessages = document.getElementById('chatMessages');
 const stats = document.getElementById('stats');
@@ -37,6 +38,24 @@ aiNameInput.value = aiName;
 aiNameInput.addEventListener('input', () => {
     aiName = aiNameInput.value;
     localStorage.setItem('aiName', aiName);
+    // 現在の会話を再描画
+    if (currentConversation) {
+        const messages = extractMessages(currentConversation);
+        renderMessages(messages);
+    }
+    if (currentConversation) {
+        const messages = extractMessages(currentConversation);
+        renderMessages(messages);
+    }
+});
+
+// 隠しメッセージ表示設定
+let showHidden = localStorage.getItem('showHidden') === 'true';
+showHiddenInput.checked = showHidden;
+
+showHiddenInput.addEventListener('change', () => {
+    showHidden = showHiddenInput.checked;
+    localStorage.setItem('showHidden', showHidden);
     // 現在の会話を再描画
     if (currentConversation) {
         const messages = extractMessages(currentConversation);
@@ -145,7 +164,7 @@ function selectConversation(index) {
     renderMessages(messages);
 }
 
-// ChatGPTのエクスポート形式からメッセージを抽出
+// ChatGPTのエクスポート形式からメッセージを抽出（全分岐対応）
 function extractMessages(conv) {
     const messages = [];
     const mapping = conv.mapping;
@@ -163,8 +182,8 @@ function extractMessages(conv) {
 
     if (!rootId) return messages;
 
-    // ツリーを辿ってメッセージを収集
-    function traverse(nodeId) {
+    // ツリーを辿ってメッセージを収集（全分岐対応）
+    function traverse(nodeId, branchInfo = null) {
         const node = mapping[nodeId];
         if (!node) return;
 
@@ -174,9 +193,11 @@ function extractMessages(conv) {
             const author = msg.author;
             const content = msg.content;
 
-            // システムメッセージやhiddenは除外
-            if (author && author.role !== 'system' &&
-                !msg.metadata?.is_visually_hidden_from_conversation) {
+            // システムメッセージやhiddenは除外（設定で表示可能に）
+            const isSystem = author && author.role === 'system';
+            const isHidden = msg.metadata?.is_visually_hidden_from_conversation;
+
+            if ((author && !isSystem && !isHidden) || showHidden) {
 
                 let textContent = '';
                 if (content && content.parts) {
@@ -189,15 +210,33 @@ function extractMessages(conv) {
                     messages.push({
                         role: author.role,
                         content: textContent,
-                        timestamp: msg.create_time
+                        timestamp: msg.create_time,
+                        isHidden: isSystem || isHidden,
+                        isBranch: branchInfo !== null,
+                        branchIndex: branchInfo ? branchInfo.index : null,
+                        branchTotal: branchInfo ? branchInfo.total : null
                     });
                 }
             }
         }
 
-        // 子ノードを辿る（最初の子のみ - メインスレッド）
+        // 子ノードを辿る（全ての分岐を辿る）
         if (node.children && node.children.length > 0) {
-            traverse(node.children[0]);
+            const children = node.children;
+
+            if (children.length === 1) {
+                // 分岐なし：そのまま辿る
+                traverse(children[0], null);
+            } else {
+                // 分岐あり：全ての子を辿る
+                children.forEach((childId, index) => {
+                    const childBranchInfo = {
+                        index: index + 1,
+                        total: children.length
+                    };
+                    traverse(childId, index === 0 ? null : childBranchInfo);
+                });
+            }
         }
     }
 
@@ -222,8 +261,10 @@ function renderMessages(messages) {
 
         if (isUser) {
             // ユーザーメッセージ（右寄せ、バブル）
+            const branchClass = msg.isBranch ? 'branch-message' : '';
             return `
-                <div class="message user">
+                <div class="message user ${branchClass}">
+                    ${msg.isBranch ? `<span class="branch-badge">Branch ${msg.branchIndex}/${msg.branchTotal}</span>` : ''}
                     <div class="message-bubble">${formatContent(msg.content)}</div>
                     <div class="message-time">${time}</div>
                 </div>
@@ -231,12 +272,17 @@ function renderMessages(messages) {
         } else {
             // 相手メッセージ（左寄せ）
             const nameHtml = aiName ? `<span class="message-role">${escapeHtml(aiName)}</span>` : '';
+            const hiddenClass = msg.isHidden ? 'hidden-message' : '';
+            const branchClass = msg.isBranch ? 'branch-message' : '';
+
             return `
-                <div class="message assistant">
+                <div class="message assistant ${hiddenClass} ${branchClass}">
                     <div class="message-body">
                         <div class="message-meta">
                             ${nameHtml}
                             <span class="message-time">${time}</span>
+                            ${msg.isHidden ? '<span class="hidden-badge">Hidden</span>' : ''}
+                            ${msg.isBranch ? `<span class="branch-badge">Branch ${msg.branchIndex}/${msg.branchTotal}</span>` : ''}
                         </div>
                         <div class="message-content">${formatContent(msg.content)}</div>
                     </div>
@@ -250,20 +296,52 @@ function renderMessages(messages) {
 }
 
 // コンテンツをフォーマット
+// コンテンツをフォーマット（簡易Markdown）
 function formatContent(content) {
     if (!content) return '';
 
-    // HTMLエスケープ
-    let text = escapeHtml(content);
+    // HTMLエスケープ（コードブロック以外）
+    let text = content;
 
-    // コードブロック
-    text = text.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+    // コードブロックを一時退避
+    const codeBlocks = [];
+    text = text.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+        codeBlocks.push(`<pre><code>${escapeHtml(code)}</code></pre>`);
+        return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
+    });
+
+    // エスケープ処理
+    text = escapeHtml(text);
 
     // インラインコード
     text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
 
-    // 改行
+    // 見出し
+    text = text.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+    text = text.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+    text = text.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+
+    // 太字
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // イタリック
+    text = text.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+
+    // リスト（簡易）
+    text = text.replace(/^\- (.*$)/gm, '<li>$1</li>');
+    // リストのラップ処理（連続するliをulで囲むのは簡易実装では省略し、CSSで調整）
+
+    // リンク
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+    // 改行を<br>に（ただしHTMLタグの後は除く）
     text = text.replace(/\n/g, '<br>');
+
+    // 見出しやリストの後の余分な<br>を削除
+    text = text.replace(/(<\/h[1-3]>|<\/li>)<br>/g, '$1');
+
+    // コードブロックを復帰
+    text = text.replace(/__CODE_BLOCK_(\d+)__/g, (match, index) => codeBlocks[index]);
 
     return text;
 }

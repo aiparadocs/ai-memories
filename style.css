@@ -169,6 +169,64 @@ body {
     color: var(--text-secondary);
 }
 
+/* トグルスイッチ */
+.setting-item {
+    padding: 0 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--border-color);
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: var(--accent-color);
+}
+
+input:checked+.slider:before {
+    transform: translateX(16px);
+}
+
+.setting-label {
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
 .conversation-list {
     flex: 1;
     overflow-y: auto;
@@ -358,6 +416,130 @@ body {
 .message-content pre code {
     background: none;
     padding: 0;
+}
+
+.message-content pre code {
+    background: none;
+    padding: 0;
+}
+
+/* 隠しメッセージ */
+.message.assistant.hidden-message {
+    opacity: 0.7;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.hidden-badge {
+    font-size: 10px;
+    background-color: #888;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    font-weight: bold;
+}
+
+@media (prefers-color-scheme: dark) {
+    .message.assistant.hidden-message {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+}
+
+/* 分岐メッセージ（選ばれなかった応答） */
+.message.branch-message {
+    opacity: 0.75;
+    border-left: 3px solid #9b59b6;
+    padding-left: 20px;
+    margin-left: 12px;
+    background: linear-gradient(90deg, rgba(155, 89, 182, 0.08) 0%, transparent 100%);
+    border-radius: 0 8px 8px 0;
+}
+
+.message.user.branch-message {
+    border-left: none;
+    border-right: 3px solid #9b59b6;
+    padding-left: 24px;
+    padding-right: 20px;
+    margin-left: 0;
+    margin-right: 12px;
+    background: linear-gradient(270deg, rgba(155, 89, 182, 0.08) 0%, transparent 100%);
+    border-radius: 8px 0 0 8px;
+}
+
+.branch-badge {
+    font-size: 10px;
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 8px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.message.user .branch-badge {
+    margin-left: 0;
+    margin-bottom: 6px;
+    display: inline-block;
+}
+
+@media (prefers-color-scheme: dark) {
+    .message.branch-message {
+        background: linear-gradient(90deg, rgba(155, 89, 182, 0.15) 0%, transparent 100%);
+    }
+
+    .message.user.branch-message {
+        background: linear-gradient(270deg, rgba(155, 89, 182, 0.15) 0%, transparent 100%);
+    }
+}
+
+/* マークダウン要素 */
+.message-content h1,
+.message-content h2,
+.message-content h3 {
+    margin-top: 16px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.message-content h1 {
+    font-size: 1.4em;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 4px;
+}
+
+.message-content h2 {
+    font-size: 1.2em;
+}
+
+.message-content h3 {
+    font-size: 1.1em;
+}
+
+.message-content strong {
+    font-weight: 700;
+}
+
+.message-content em {
+    font-style: italic;
+}
+
+.message-content li {
+    margin-left: 20px;
+    list-style-type: disc;
+    margin-bottom: 4px;
+}
+
+.message-content a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.message-content a:hover {
+    text-decoration: underline;
 }
 
 /* スクロールバー */

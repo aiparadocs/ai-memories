@@ -23,7 +23,8 @@
         <!-- サイドバー -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h1>AI Memories <a href="https://para.artcodec.co/" target="_blank" class="para-link"><img src="para-icon.png" alt="para.docs"></a></h1>
+                <h1>AI Memories <a href="https://para.artcodec.co/" target="_blank" class="para-link"><img
+                            src="para-icon.png" alt="para.docs"></a></h1>
                 <div class="file-input-wrapper">
                     <input type="file" id="fileInput" accept=".json">
                     <label for="fileInput">📁 conversations.json を開く</label>
@@ -35,8 +36,16 @@
             </div>
 
             <div class="name-setting">
-                <label for="aiNameInput">相手の名前</label>
-                <input type="text" id="aiNameInput" placeholder="名前を入力...">
+                <label for="aiNameInput">AIの名前（表示用）</label>
+                <input type="text" id="aiNameInput" placeholder="例: ChatGPT">
+            </div>
+
+            <div class="setting-item">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="showHiddenInput">
+                    <span class="slider"></span>
+                </label>
+                <span class="setting-label">隠しメッセージを表示</span>
             </div>
 
             <div class="conversation-list" id="conversationList">
