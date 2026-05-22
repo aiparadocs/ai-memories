@@ -51,3 +51,9 @@ test('formatContent preserves and escapes code blocks', () => {
   const out = formatContent('```js\n<x>\n```');
   assert.match(out, /<pre><code>&lt;x&gt;\n<\/code><\/pre>/);
 });
+
+test('formatContent does not corrupt literal "CB0" text', () => {
+  const out = formatContent('hello CB0 world');
+  assert.match(out, /hello CB0 world/);
+  assert.doesNotMatch(out, /undefined/);
+});
