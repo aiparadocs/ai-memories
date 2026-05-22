@@ -6,12 +6,15 @@ let convById = new Map();
 let index = [];
 let searchTexts = {};
 let format = 'chatgpt';
+let loadSeq = 0;
 
 self.onmessage = async (e) => {
   const msg = e.data;
   try {
     if (msg.type === 'load') {
+      const myLoad = ++loadSeq;
       const text = await msg.file.text();
+      if (myLoad !== loadSeq) return; // 新しい読み込みが来たら古い処理は破棄（入れ替え時の競合防止）
       const conversations = JSON.parse(text);
       format = detectFormat(conversations);
       const idOf = format === 'claude' ? claudeConvId : convId;
