@@ -142,6 +142,37 @@ function selectConversation(id) {
   worker.postMessage({ type: 'getMessages', id });
 }
 
+// --- ブロック描画（Claude形式: blocks を持つメッセージ用） ---
+function renderBody(msg) {
+  if (Array.isArray(msg.blocks)) return renderBlocks(msg.blocks);
+  return formatContent(msg.content);
+}
+
+function renderBlocks(blocks) {
+  return blocks.map(b => {
+    if (b.type === 'text') return formatContent(b.text);
+    if (b.type === 'thinking') {
+      return `<details class="thinking"><summary>思考</summary><div class="thinking-body">${formatContent(b.text)}</div></details>`;
+    }
+    if (b.type === 'tool_use') {
+      const msgLine = b.message ? `<div class="tool-msg">${escapeHtml(b.message)}</div>` : '';
+      const input = b.input !== undefined ? `<pre><code>${escapeHtml(JSON.stringify(b.input, null, 2))}</code></pre>` : '';
+      return `<div class="tool-use"><span class="block-label">ツール: ${escapeHtml(b.name)}</span>${msgLine}${input}</div>`;
+    }
+    if (b.type === 'tool_result') {
+      return `<div class="tool-result${b.isError ? ' error' : ''}"><span class="block-label">結果</span><div>${formatContent(b.text)}</div></div>`;
+    }
+    if (b.type === 'attachment') {
+      const ft = b.fileType ? `（${escapeHtml(b.fileType)}）` : '';
+      return `<div class="attachment"><span class="block-label">添付: ${escapeHtml(b.fileName || '(名称なし)')}${ft}</span><div>${formatContent(b.text)}</div></div>`;
+    }
+    if (b.type === 'file') {
+      return `<div class="file-ref">[ファイル: ${escapeHtml(b.fileName)}]</div>`;
+    }
+    return '';
+  }).join('');
+}
+
 // --- メッセージ描画（showHiddenで絞り込み） ---
 function renderMessages() {
   const messages = showHidden ? currentMessages : currentMessages.filter(m => !m.isHidden);
@@ -157,7 +188,7 @@ function renderMessages() {
       return `
         <div class="message user ${branchClass}">
           ${msg.isBranch ? `<span class="branch-badge">Branch ${msg.branchIndex}/${msg.branchTotal}</span>` : ''}
-          <div class="message-bubble">${formatContent(msg.content)}</div>
+          <div class="message-bubble">${renderBody(msg)}</div>
           <div class="message-time">${time}</div>
         </div>`;
     }
@@ -173,7 +204,7 @@ function renderMessages() {
             ${msg.isHidden ? '<span class="hidden-badge">Hidden</span>' : ''}
             ${msg.isBranch ? `<span class="branch-badge">Branch ${msg.branchIndex}/${msg.branchTotal}</span>` : ''}
           </div>
-          <div class="message-content">${formatContent(msg.content)}</div>
+          <div class="message-content">${renderBody(msg)}</div>
         </div>
       </div>`;
   }).join('');
