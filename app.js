@@ -67,6 +67,8 @@ fileInput.addEventListener('change', (e) => {
   if (!file) return;
   conversationList.innerHTML = '<div class="loading">読み込み中</div>';
   worker.postMessage({ type: 'load', file });
+  // 同じファイルを選び直しても change が再発火するよう値をリセット
+  e.target.value = '';
 });
 
 // --- Workerからの応答 ---
