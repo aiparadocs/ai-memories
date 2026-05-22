@@ -100,3 +100,23 @@ test('searchMatch is case-insensitive over title and body', () => {
   assert.deepEqual(searchMatch('zzz', index, searchTexts), []);
   assert.deepEqual(searchMatch('', index, searchTexts), ['c1']);
 });
+
+test('extractMessages handles very deep conversations without stack overflow', () => {
+  const n = 20000;
+  const mapping = { root: { parent: null, children: ['m0'] } };
+  for (let i = 0; i < n; i++) {
+    mapping['m' + i] = {
+      parent: i === 0 ? 'root' : 'm' + (i - 1),
+      children: i < n - 1 ? ['m' + (i + 1)] : [],
+      message: {
+        author: { role: i % 2 === 0 ? 'user' : 'assistant' },
+        content: { content_type: 'text', parts: ['msg' + i] },
+        create_time: i,
+        metadata: {},
+      },
+    };
+  }
+  const conv = { conversation_id: 'deep', title: 'Deep', create_time: 1, update_time: 1, mapping };
+  const m = extractMessages(conv);
+  assert.equal(m.length, n);
+});
