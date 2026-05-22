@@ -695,3 +695,52 @@ input:checked+.slider:before {
         transform: rotate(360deg);
     }
 }
+
+/* マルチ形式: Claude のコンテンツブロック */
+.block-label {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin: 8px 0 4px;
+}
+
+.thinking {
+    margin: 10px 0;
+    border-left: 3px solid var(--border-color);
+    padding-left: 12px;
+}
+
+.thinking summary {
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 13px;
+    user-select: none;
+}
+
+.thinking-body {
+    margin-top: 8px;
+    color: var(--text-secondary);
+}
+
+.tool-use,
+.tool-result,
+.attachment {
+    margin: 10px 0;
+}
+
+.tool-msg {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.tool-result.error .block-label {
+    color: #e06c5b;
+}
+
+.file-ref {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 6px 0;
+}
