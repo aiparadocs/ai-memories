@@ -74,6 +74,7 @@ worker.onmessage = (e) => {
   const msg = e.data;
   if (msg.type === 'loaded') {
     indexList = msg.index;
+    searchInput.value = ''; // 新規読み込み時は検索をリセット
     renderConversationList(indexList);
     stats.textContent = `${indexList.length} 件の会話`;
   } else if (msg.type === 'messages') {
@@ -81,6 +82,7 @@ worker.onmessage = (e) => {
     currentMessages = msg.messages;
     renderMessages();
   } else if (msg.type === 'searchResult') {
+    if (msg.query !== searchInput.value) return; // 古い検索結果は無視
     const idset = new Set(msg.ids);
     renderConversationList(indexList.filter(c => idset.has(c.id)));
   } else if (msg.type === 'error') {
